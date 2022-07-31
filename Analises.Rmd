@@ -1,0 +1,23 @@
+---
+title: "Trabalho 2"
+author: |
+  | Karen Anne Aciole Alves, 119210934
+  | Kilian Macedo Melcher, 120110391
+  | Vinicius Sousa Azevedo, 120110338
+date: "08/08/2022"
+output: pdf_document
+---
+
+## Base de dados
+
+Para essa análise foi usado a base de dados do SAEB com respostas dos alunos para as avaliações e questionário socioeconômico matriculados no 2º ano do Ensino Fundamental.
+
+```{r echo=TRUE}
+# Carregando os dados
+dados <- read.csv("base_de_dados.csv")
+
+# Essas dados possuem as seguintes colunas
+colnames(dados)
+```
+
+## Análise de teste de hipótese
