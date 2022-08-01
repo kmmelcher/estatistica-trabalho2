@@ -1,0 +1,159 @@
+---
+title: "Análise Exploratória De Dados"
+author: |
+  | Karen Anne Aciole Alves, 119210934
+  | Kilian Macedo Melcher, 120110391
+  | Vinicius Sousa Azevedo, 120110338
+date: "08/08/2022"
+output: pdf_document
+---
+
+# Análise Exploratória de Dados
+
+## Quais os estados que possuem notas mais alta?
+
+O Sistema de Avaliação da Educação Básica (Saeb) é um conjunto de avaliações externas em larga escala que permite ao Inep realizar um diagnóstico da educação básica brasileira e de fatores que podem interferir no desempenho do estudante. Desde 1995, a avaliação bienal busca fornecer um panorama da Educação Básica e sofreu algumas mudanças metodológicas para aprimoramento. Juntamente com outros indicadores, as notas do SAEB estruturam a nota do Índice de Desenvolvimento da Educação Básica (Ideb).
+
+## Problema: 
+1. Analisar a média de notas de cada estado do Brasil no SAEB. 
+2. Classificar os estados com as maiores notas.
+
+
+Importando pacotes necessários:
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(DataExplorer)
+library(ggplot2)
+```
+
+Primeiro é necessário carregar o arquivo que contém a base de dados a ser analisada.
+
+```{r echo=TRUE}
+
+dados <- read.csv("base_de_dados.csv")
+```
+
+Conhecendo nossos dados, a seguir é mostrado as 6 primeiras linhas da nossa base de dados:
+
+```{r echo=TRUE}
+
+head(dados)
+
+```
+
+Temos 38 variáveis, mas para essa análise iremos focar apenas na nota de cada estudante que respondeu o questionário e seu respectivo estado. Dessa forma, iremos selecionar apenas as variáveis na qual estamos interessados.
+
+```{r echo=TRUE, message=FALSE}
+
+dados_filtrados <- dados %>%
+  select(sigla_uf, peso_aluno)
+
+knitr::kable(head(dados_filtrados), caption="Primeiras linhas da base de dados")
+```
+
+O próximo passo é procurar por valores ausentes (NAs, zeros, etc) com o pacote "DataExplorer".
+
+```{r echo=TRUE, message=FALSE}
+
+# O parâmetro group da função categoriza a variável de acordo com os limites 
+# superiores estipulados (valores padrões da biblioteca) foi alterado apenas os 
+# nomes para o português. 
+
+plot_missing(dados_filtrados, 
+             title="Porcentagem de valores ausentes nas variáveis", 
+             group = list(Bom = 0.05, Ok = 0.4, Ruim = 0.8, Remover = 1))
+
+
+```
+
+O gráfico demonstra que temos apenas 20% de valores ausentes na variável "peso_aluno", além disso, é considerada como uma margem "Ok" de valores ausentes pois é um valor pequeno de dados ausentes comparado ao tamanho da nossa base de dados.
+
+## Limpeza de dados
+
+Retirando as linhas com valores ausentes:
+
+```{r echo=TRUE, message=FALSE}
+nrow(dados_filtrados) # Antes de retirar os dados ausentes
+
+dados_validos <- dados_filtrados %>% filter(peso_aluno != "none" & between(peso_aluno, 0, 500))
+nrow(dados_validos) # Depois de retirar os dados ausentes
+```
+
+Foi feito um novo arquivo .csv com apenas as variáveis que serão analisadas:
+
+```{r echo=TRUE, message=FALSE}
+
+#write.csv(dados_validos, file = "dados_saeb.csv", row.names=FALSE) 
+data <- read.csv("dados_saeb.csv")
+        
+```
+
+## Box-plot para visualizar a relação das notas entre os estados:
+```{r echo=TRUE, message=FALSE}
+ggplot(as.data.frame(data), aes(x = sigla_uf, y = peso_aluno, fill=peso_aluno)) +
+  geom_boxplot(outlier.shape=NA, fill="orange", alpha=0.3) +
+  coord_cartesian(ylim =  c(0, 500)) + 
+  labs(x="Estado", y = "Nota")
+
+```
+
+**De imediato vemos que o estado com maior nota é o estado de São Paulo.**
+
+Extraindo a média de notas de cada estado: 
+```{r echo=TRUE, message=FALSE}
+media_por_estado <- data %>%                               
+  group_by(sigla_uf) %>%                      
+  summarise_at(vars(peso_aluno),             
+               list(media_notas=mean))
+
+knitr::kable(media_por_estado, digits=2, caption="Média de notas por estado")
+```
+
+
+Extraindo a quantidade de estudantes que participaram da avaliação de cada estado:
+```{r echo=TRUE, message=FALSE}
+participacao_por_estado <- data %>% 
+  count(sigla_uf)
+
+knitr::kable(participacao_por_estado, caption="Participação de estudantes por estado")
+```
+
+## Gráfico de barra para visualizar o número de estudantes que participaram referente a cada estado:
+
+```{r echo=TRUE, message=FALSE}
+ggplot(as.data.frame(participacao_por_estado), aes(x=sigla_uf, y=n, fill = sigla_uf))+     
+  geom_col(position="dodge")+
+  labs(x="Estados", y="Número de participantes")+
+  theme(axis.text.x = element_blank())
+```
+
+**Por outro lado, temos que, o estado do Amazonas teve a maior quantidade de estudantes participantes.**
+
+## Analisando os 6 estados com as maiores notas: 
+```{r echo=TRUE, message=FALSE}
+maiores_medias <- media_por_estado[order(media_por_estado$media_notas, decreasing=TRUE),]
+knitr::kable(head(maiores_medias), digits=2, caption="Estados com as maiores notas")
+```
+## Analisando os 6 estados com as menores notas: 
+```{r echo=TRUE, message=FALSE}
+menores_medias <- media_por_estado[order(media_por_estado$media_notas, decreasing=TRUE),]
+knitr::kable(tail(menores_medias), digits=2, caption="Estados com as menores notas")
+```
+
+## Analisando os 6 estados com mais participantes:
+```{r echo=TRUE, message=FALSE}
+maiores_participantes <- participacao_por_estado[order(participacao_por_estado$n, decreasing=TRUE),]
+knitr::kable(head(maiores_participantes), caption="Estados com maior número de participantes")
+```
+
+## Analisando os 6 estados com menores participantes
+```{r echo=TRUE, message=FALSE}
+menores_participantes <- participacao_por_estado[order(participacao_por_estado$n, decreasing=TRUE),]
+knitr::kable(tail(maiores_participantes), caption="Estados com menor número de participantes")
+```
+
+# Conclusões: 
+Por meio da análise, foi possível identificar que temos uma grande disparidade entre a média de notas do estado de São Paulo em comparação aos demais estados. Dentre as maiores notas, temos São Paulo, Rio de Janeiro e Minas Gerais da região Sudeste; os estados da Bahia e Pernambuco da região Nordeste; e o estado do Paraná da região Sul. Curiosamente, os estados com maiores participantes são das regiões Norte e Nordeste, e com apenas Minas Gerais da região Sudeste. Por fim, os estados com as menores notas são da região Norte e Nordeste.
+
+É possível estender a discussão dessa análise para o âmbito da desigualdade social do país relacionando com a qualidade do ensino nas escolas públicas de cada estado, sabendo que essa qualidade varia de acordo com as condições socioeconômicas de cada estado. 
