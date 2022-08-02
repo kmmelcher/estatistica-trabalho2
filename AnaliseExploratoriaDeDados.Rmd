@@ -84,8 +84,8 @@ Foi feito um novo arquivo .csv com apenas as variáveis que serão analisadas:
 
 ```{r echo=TRUE, message=FALSE}
 
-#write.csv(dados_validos, file = "dados_saeb.csv", row.names=FALSE) 
-data <- read.csv("dados_saeb.csv")
+#write.csv(dados_validos, file = "amostra_utilizada.csv", row.names=FALSE) 
+data <- read.csv("amostra_utilizada.csv")
         
 ```
 

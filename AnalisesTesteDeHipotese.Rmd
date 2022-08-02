@@ -8,18 +8,6 @@ date: "08/08/2022"
 output: pdf_document
 ---
 
-## Base de dados
-
-Para essa análise foi usado a base de dados do SAEB com respostas dos alunos para as avaliações e questionário socioeconômico matriculados no 2º ano do Ensino Fundamental.
-
-```{r echo=TRUE}
-# Carregando os dados
-dados <- read.csv("base_de_dados.csv")
-
-# Essas dados possuem as seguintes colunas
-colnames(dados)
-```
-
 ## Análise de teste de hipótese
 
 Assumindo que o peso médio de uma criança de 9 anos é de 25kg, vamos verificar se a proporção de crianças de 9 anos, que tem peso maior ou igual ao peso médio é de pelo menos 60% nessa amostra.
