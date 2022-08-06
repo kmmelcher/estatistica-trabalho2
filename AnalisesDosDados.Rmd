@@ -14,10 +14,10 @@ output: pdf_document
 
 O Sistema de Avaliação da Educação Básica (Saeb) é um conjunto de avaliações externas em larga escala que permite ao Inep realizar um diagnóstico da educação básica brasileira e de fatores que podem interferir no desempenho do estudante. Desde 1995, a avaliação bienal busca fornecer um panorama da Educação Básica e sofreu algumas mudanças metodológicas para aprimoramento. Juntamente com outros indicadores, as notas do SAEB estruturam a nota do Índice de Desenvolvimento da Educação Básica (Ideb).
 
-## Problema: 
-1. Analisar a média de notas de cada estado do Brasil no SAEB. 
-2. Classificar os estados com as maiores notas.
+## Problema:
 
+1.  Analisar a média de notas de cada estado do Brasil no SAEB.
+2.  Classificar os estados com as maiores notas.
 
 Importando pacotes necessários:
 
@@ -90,6 +90,7 @@ data <- read.csv("amostra_utilizada.csv")
 ```
 
 ## Box-plot para visualizar a relação das notas entre os estados:
+
 ```{r echo=TRUE, message=FALSE}
 ggplot(as.data.frame(data), aes(x = sigla_uf, y = peso_aluno, fill=peso_aluno)) +
   geom_boxplot(outlier.shape=NA, fill="orange", alpha=0.3) +
@@ -100,7 +101,8 @@ ggplot(as.data.frame(data), aes(x = sigla_uf, y = peso_aluno, fill=peso_aluno)) 
 
 **De imediato vemos que o estado com maior nota é o estado de São Paulo.**
 
-Extraindo a média de notas de cada estado: 
+Extraindo a média de notas de cada estado:
+
 ```{r echo=TRUE, message=FALSE}
 media_por_estado <- data %>%                               
   group_by(sigla_uf) %>%                      
@@ -110,8 +112,8 @@ media_por_estado <- data %>%
 knitr::kable(media_por_estado, digits=2, caption="Média de notas por estado")
 ```
 
-
 Extraindo a quantidade de estudantes que participaram da avaliação de cada estado:
+
 ```{r echo=TRUE, message=FALSE}
 participacao_por_estado <- data %>% 
   count(sigla_uf)
@@ -130,30 +132,87 @@ ggplot(as.data.frame(participacao_por_estado), aes(x=sigla_uf, y=n, fill = sigla
 
 **Por outro lado, temos que, o estado do Amazonas teve a maior quantidade de estudantes participantes.**
 
-## Analisando os 6 estados com as maiores notas: 
+## Analisando os 6 estados com as maiores notas:
+
 ```{r echo=TRUE, message=FALSE}
 maiores_medias <- media_por_estado[order(media_por_estado$media_notas, decreasing=TRUE),]
 knitr::kable(head(maiores_medias), digits=2, caption="Estados com as maiores notas")
 ```
-## Analisando os 6 estados com as menores notas: 
+
+## Analisando os 6 estados com as menores notas:
+
 ```{r echo=TRUE, message=FALSE}
 menores_medias <- media_por_estado[order(media_por_estado$media_notas, decreasing=TRUE),]
 knitr::kable(tail(menores_medias), digits=2, caption="Estados com as menores notas")
 ```
 
 ## Analisando os 6 estados com mais participantes:
+
 ```{r echo=TRUE, message=FALSE}
 maiores_participantes <- participacao_por_estado[order(participacao_por_estado$n, decreasing=TRUE),]
 knitr::kable(head(maiores_participantes), caption="Estados com maior número de participantes")
 ```
 
 ## Analisando os 6 estados com menores participantes
+
 ```{r echo=TRUE, message=FALSE}
 menores_participantes <- participacao_por_estado[order(participacao_por_estado$n, decreasing=TRUE),]
 knitr::kable(tail(maiores_participantes), caption="Estados com menor número de participantes")
 ```
 
-# Conclusões: 
+# Conclusões:
+
 Por meio da análise, foi possível identificar que temos uma grande disparidade entre a média de notas do estado de São Paulo em comparação aos demais estados. Dentre as maiores notas, temos São Paulo, Rio de Janeiro e Minas Gerais da região Sudeste; os estados da Bahia e Pernambuco da região Nordeste; e o estado do Paraná da região Sul. Curiosamente, os estados com maiores participantes são das regiões Norte e Nordeste, e com apenas Minas Gerais da região Sudeste. Por fim, os estados com as menores notas são da região Norte e Nordeste.
 
-É possível estender a discussão dessa análise para o âmbito da desigualdade social do país relacionando com a qualidade do ensino nas escolas públicas de cada estado, sabendo que essa qualidade varia de acordo com as condições socioeconômicas de cada estado. 
+É possível estender a discussão dessa análise para o âmbito da desigualdade social do país relacionando com a qualidade do ensino nas escolas públicas de cada estado, sabendo que essa qualidade varia de acordo com as condições socioeconômicas de cada estado.
+
+\newpage
+
+# Análise de teste de hipótese
+
+Nesse dado, a variável "**Peso aluno**" é uma nota que o aluno recebe que pode
+variar de 0 a 500.
+Assumindo que o peso médio de um aluno é de 250, vamos verificar se a proporção 
+dos alunos que obtiveram peso maior ou igual ao peso médio é de pelo menos 50% 
+nessa amostra.
+
+h0: p = 0.5 (Hipótese nula).
+
+h1: p \< 0.5 (Hipótese alternativa).
+
+```{r echo=TRUE, message=FALSE}
+library(dplyr)
+
+# Definindo os parâmetros do teste
+peso_medio <- 250
+probabilidade_de_sucesso <- 0.5
+
+# Lista contendo 1 para peso maior ou igual ao peso médio e 0 para menor.
+verifica_peso_medio <- as.numeric(data$peso_aluno >= peso_medio)
+
+tabela_peso_medio <- table(verifica_peso_medio)
+tamanho_da_amostra <- dim(data)[1]
+total_sucessos <- tabela_peso_medio[2]
+
+# Calculando o teste de hipótese unilateral à esquerda
+prop.test(
+  x = total_sucessos,
+  n = tamanho_da_amostra,
+  p = probabilidade_de_sucesso,
+  alternative = 'less',
+  correct = FALSE
+)
+
+```
+
+**Resultados**:
+
+-   Intervalo de confiança de 95%.
+
+-   1,26% dos alunos nessa amostra possuem um peso igual ou maior ao peso médio.
+
+-   A proporção de crianças com peso maior ou igual ao peso médio é menor que 50%.
+
+-   Valor p = 0.01215994 = 1,2% (\< 5%)
+
+-   Rejeita a hipótese nula.
