@@ -4,6 +4,7 @@ author: |
   | Karen Anne Aciole Alves, 119210934
   | Kilian Macedo Melcher, 120110391
   | Vinicius Sousa Azevedo, 120110338
+  | Vinicius Trindade Rocha Ribeiro, 119110143
 date: "08/08/2022"
 output: pdf_document
 ---
@@ -216,3 +217,32 @@ prop.test(
 -   Valor p = 0.01215994 = 1,2% (\< 5%)
 
 -   Rejeita a hipótese nula.
+
+
+##Utilizando Intervalos de confiança (IC)
+
+Precisamos do intervalo de confiança para indicar a incerteza ou imprecisão acerca do tamanho do efeito calculado usando a amostra de estudo para estimar o verdadeiro tamanho do efeito na população de origem.
+
+``` {r echo=TRUE, message=FALSE}
+
+
+library(readr)
+library(dplyr)
+library(lsr)
+library(ggplot2)
+
+#Determinando os intervalos de confiança com uso de limite inferior e superior
+dom <- read.csv("amostra_utilizada.csv") %>%
+        group_by(sigla_uf)%>%
+        summarise(media=mean(peso_aluno, na.rm-T),
+                  lim.in-ciMean(peso_aluno,conf - .95,na.rm-T)[1,1],
+                  lim.sup-ciMean(peso_aluno,conf - .95,na.rm-T)[1,2])
+
+#representação gráfica do IC
+ggplot(dom,aes(sigla_uf,media,group=1))+
+  geom_line(col="#e63d12")+
+  geom_point(col="#e63d12")+
+  geom_errorbar(aes(ymin=lim.in,ymax=lim.sup),width=.2)
+
+
+```
