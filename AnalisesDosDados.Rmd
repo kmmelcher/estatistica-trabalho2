@@ -26,6 +26,7 @@ Importando pacotes necessários:
 library(dplyr)
 library(DataExplorer)
 library(ggplot2)
+library(lsr)
 ```
 
 Primeiro é necessário carregar o arquivo que contém a base de dados a ser analisada.
@@ -182,7 +183,6 @@ h0: p = 0.5 (Hipótese nula).
 h1: p \< 0.5 (Hipótese alternativa).
 
 ```{r echo=TRUE, message=FALSE}
-library(dplyr)
 
 # Definindo os parâmetros do teste
 peso_medio <- 250
@@ -224,12 +224,6 @@ prop.test(
 Precisamos do intervalo de confiança para indicar a incerteza ou imprecisão acerca do tamanho do efeito calculado usando a amostra de estudo para estimar o verdadeiro tamanho do efeito na população de origem.
 
 ``` {r echo=TRUE, message=FALSE}
-
-
-library(readr)
-library(dplyr)
-library(lsr)
-library(ggplot2)
 
 #Determinando os intervalos de confiança com uso de limite inferior e superior
 dom <- read.csv("amostra_utilizada.csv") %>%
