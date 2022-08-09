@@ -219,18 +219,18 @@ prop.test(
 -   Rejeita a hipótese nula.
 
 
-##Utilizando Intervalos de confiança (IC)
+# Utilizando Intervalos de confiança (IC)
 
 Precisamos do intervalo de confiança para indicar a incerteza ou imprecisão acerca do tamanho do efeito calculado usando a amostra de estudo para estimar o verdadeiro tamanho do efeito na população de origem.
 
 ``` {r echo=TRUE, message=FALSE}
 
 #Determinando os intervalos de confiança com uso de limite inferior e superior
-dom <- read.csv("amostra_utilizada.csv") %>%
+dom <- data %>%
         group_by(sigla_uf)%>%
-        summarise(media=mean(peso_aluno, na.rm-T),
-                  lim.in-ciMean(peso_aluno,conf - .95,na.rm-T)[1,1],
-                  lim.sup-ciMean(peso_aluno,conf - .95,na.rm-T)[1,2])
+        summarise(media=mean(peso_aluno, na.rm = T),
+                  lim.in = ciMean(peso_aluno,conf = .95,na.rm = T)[1,1],
+                  lim.sup = ciMean(peso_aluno,conf = .95,na.rm = T)[1,2])
 
 #representação gráfica do IC
 ggplot(dom,aes(sigla_uf,media,group=1))+
