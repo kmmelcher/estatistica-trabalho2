@@ -92,8 +92,6 @@ bptest(mod)
 # Passo 4: Analise do modelo
 summary(mod)
 
-
-
 # Passo 5: Apresentacao Grafica
 
 ggplot(data = dados, mapping = aes(x = Quilometro, y = Preco)) +

@@ -1,0 +1,75 @@
+---
+output: pdf_document
+---
+
+2)  A partir das duas (2) variáveis adotadas para análise:
+
+<!-- -->
+
+a)  Desenvolva uma breve análise exploratória/descritiva das mesmas\
+    \
+
+    ```{r echo=TRUE, message=FALSE, warning=FALSE}
+    library(dplyr)
+    library(knitr)
+
+    dados <- read.csv("brasileirao_serie_a.csv")
+
+    dados_filtrados <- dados %>%
+                    select(time = time_man, chutes = chutes_man, gols = gols_man) %>% 
+                    filter(!is.na(chutes))
+
+    kable(head(dados_filtrados))
+
+    ```
+
+b)  Desenvolva e **interprete de forma prática** uma análise de correlação.
+
+c)  Desenvolva e **interprete de forma prática** uma análise de regressão linear simples, incluindo a análise de resíduos e previsões para alguns valores estabelecidos para a variável independente, X = x.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(car)
+library(ggpubr)
+
+# Modelo de Regressao Linear Simples (MRLS)
+mod <- lm(chutes ~ gols, data = dados_filtrados)
+
+# Coeficientes Estimados
+mod
+
+# Inferências
+summary(mod)
+
+#Gráfico de relação
+plot(dados_filtrados$chutes, dados_filtrados$gols, xlab="chutes", ylab="gols")
+
+## Analise grafica baseada no modelo estimado
+par(mfrow=c(2,2), mar=c(3,3,3,3))
+plot(mod)
+
+# Normalidade dos residuos:
+shapiro.test(mod$residuals)
+
+# Outliers nos residuos:
+summary(rstandard(mod))
+
+# Independencia dos residuos
+durbinWatsonTest(mod)
+
+dados_filtrados %>% ggplot(aes(x = chutes, y = gols)) +
+  theme_classic() +
+  geom_point() +
+  geom_smooth(method = "lm", col = "red") +
+  stat_regline_equation(aes(label = paste(..eq.label.., ..adj.rr.label..,
+                                          sep = "*plain(\",\")~~")),
+                        label.x = 20, label.y = 6) +
+  labs(x='Chutes', y='gols',
+       title='Ajuste de um Modelo de Regressão Linear Simples',
+       subtitle = 'Chutes x gols marcados')
+
+# Prevendo a quantidade de chutes para um time com 5 gols
+df_chutes <- data.frame(gols = c(5))
+predict(mod, df_chutes)
+
+```
