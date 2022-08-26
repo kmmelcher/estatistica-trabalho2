@@ -24,6 +24,19 @@ a)  Desenvolva uma breve análise exploratória/descritiva das mesmas\
     ```
 
 b)  Desenvolva e **interprete de forma prática** uma análise de correlação.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#Calculando coeficiente de correlação de pearson
+cor(dados_filtrados$chutes,dados_filtrados$gols)
+
+#Teste estatístico do grau de correlação
+cor.test(dados_filtrados$chutes,dados_filtrados$gols)
+
+#Outros tipos de correlação
+cor(dados_filtrados$chutes,dados_filtrados$gols, method="kendall")
+cor(dados_filtrados$chutes,dados_filtrados$gols, method="spearman")
+
+
+```
 
 c)  Desenvolva e **interprete de forma prática** uma análise de regressão linear simples, incluindo a análise de resíduos e previsões para alguns valores estabelecidos para a variável independente, X = x.
 
