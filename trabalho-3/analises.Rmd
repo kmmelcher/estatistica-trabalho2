@@ -70,14 +70,11 @@ knitr::kable(media_de_chutes_por_time, digits=2, caption="Média de chutes por t
 
 ## Plot quantil-quantil pra verificarmos a validade de cada distribuição das variáveis:
 
--   Gols
+
 
 ```{r}
 plot_qq(dados_filtrados, by="gols")
 ```
-
--   Chutes
-
 ```{r}
 plot_qq(dados_filtrados, by="chutes")
 ```
@@ -86,7 +83,7 @@ plot_qq(dados_filtrados, by="chutes")
 
 ```{r}
 ggplot(as.data.frame(media_de_gols_por_time), 
-       aes(x=time, y=media_de_gols_por_time$media_gols, fill = time))+
+       aes(x=time, y=media_gols, fill = time))+
 geom_col(position="dodge")+labs(x="Time", y="Quantidade de gols")+
 theme(axis.text.x = element_blank())
 ```
@@ -94,7 +91,7 @@ theme(axis.text.x = element_blank())
 ### Visualizando por meio do gráfico de barra o número de chutes de cada time
 
 ```{r}
-ggplot(as.data.frame(media_de_gols_por_time), aes(x=time, y=media_de_chutes_por_time$media_chutes, fill = time))+
+ggplot(as.data.frame(media_de_chutes_por_time), aes(x=time, y=media_chutes, fill = time))+
 geom_col(position="dodge")+
 labs(x="Time", y="Quantidade de chutes")+
 theme(axis.text.x = element_blank())
