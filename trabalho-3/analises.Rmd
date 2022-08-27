@@ -6,24 +6,102 @@ output: pdf_document
 
 <!-- -->
 
-a)  Desenvolva uma breve análise exploratória/descritiva das mesmas\
-    \
+a)  Desenvolva uma breve análise exploratória/descritiva das mesmas
 
-    ```{r echo=TRUE, message=FALSE, warning=FALSE}
-    library(dplyr)
-    library(knitr)
+    ## Problema
 
-    dados <- read.csv("brasileirao_serie_a.csv")
+Como dito anteriormente, estaremos analisando a relação entre as variáveis "chutes_man" e "gols_man" que serão referentes ao quantidade de chutes e gols do time mandante (equipe que joga em casa) respectivamente.
 
-    dados_filtrados <- dados %>%
-                    select(time = time_man, chutes = chutes_man, gols = gols_man) %>% 
-                    filter(!is.na(chutes))
+Importanto pacotes utilizados na análise
 
-    kable(head(dados_filtrados))
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(car)
+library(ggpubr)
+library(dplyr)
+library(knitr)
+library(DataExplorer)
+```
 
-    ```
+Conhecendo nossa base de dados, temos 36 variáveis:
+
+```{r}
+dados <- read.csv("brasileirao_serie_a.csv")
+colnames(dados)
+```
+
+Selecionando da base de dados apenas as colunas que serão analisadas:
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+
+dados_filtrados <- dados %>%
+  select(time = time_man, chutes = chutes_man, gols = gols_man) %>%
+  filter(!is.na(chutes))
+
+kable(head(dados_filtrados), caption="Primeiras linhas da base de dados")
+
+```
+
+## Visualizar a relação entre chutes e gols de cada time mandante
+
+Média de gols por time:
+
+```{r}
+media_de_gols_por_time <- dados_filtrados %>%
+group_by(time) %>%
+summarise_at(vars(gols),
+list(media_gols=mean))
+knitr::kable(media_de_gols_por_time, digits=2, caption="Média de gols por time")
+```
+
+**O time Atlético-PR tem a maior média de gols**.
+
+Média de chutes por time:
+
+```{r}
+media_de_chutes_por_time <- dados_filtrados %>%
+group_by(time) %>%
+summarise_at(vars(chutes),
+list(media_chutes=mean))
+knitr::kable(media_de_chutes_por_time, digits=2, caption="Média de chutes por time")
+```
+
+**O time RB Bragantino tem a maior média de chutes**
+
+## Plot quantil-quantil pra verificarmos a validade de cada distribuição das variáveis:
+
+-   Gols
+
+```{r}
+plot_qq(dados_filtrados, by="gols")
+```
+
+-   Chutes
+
+```{r}
+plot_qq(dados_filtrados, by="chutes")
+```
+
+### Visualizando por meio do gráfico de barra o número de gols de cada time
+
+```{r}
+ggplot(as.data.frame(media_de_gols_por_time), 
+       aes(x=time, y=media_de_gols_por_time$media_gols, fill = time))+
+geom_col(position="dodge")+labs(x="Time", y="Quantidade de gols")+
+theme(axis.text.x = element_blank())
+```
+
+### Visualizando por meio do gráfico de barra o número de chutes de cada time
+
+```{r}
+ggplot(as.data.frame(media_de_gols_por_time), aes(x=time, y=media_de_chutes_por_time$media_chutes, fill = time))+
+geom_col(position="dodge")+
+labs(x="Time", y="Quantidade de chutes")+
+theme(axis.text.x = element_blank())
+```
 
 b)  Desenvolva e **interprete de forma prática** uma análise de correlação.
+
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 #Calculando coeficiente de correlação de pearson
 cor(dados_filtrados$chutes,dados_filtrados$gols)
@@ -41,9 +119,6 @@ cor(dados_filtrados$chutes,dados_filtrados$gols, method="spearman")
 c)  Desenvolva e **interprete de forma prática** uma análise de regressão linear simples, incluindo a análise de resíduos e previsões para alguns valores estabelecidos para a variável independente, X = x.
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
-library(ggplot2)
-library(car)
-library(ggpubr)
 
 # Modelo de Regressao Linear Simples (MRLS)
 mod <- lm(chutes ~ gols, data = dados_filtrados)
